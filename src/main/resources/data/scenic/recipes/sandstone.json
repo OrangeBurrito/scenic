@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "scenic:sandstone_rock_pile"
+    },
+    {
+      "item": "scenic:sandstone_rock_pile"
+    },
+    {
+      "item": "scenic:sandstone_rock_pile"
+    },
+    {
+      "item": "scenic:sandstone_rock_pile"
+    }
+  ],
+  "result": {
+    "item": "minecraft:sandstone",
+    "count": 1
+  }
+}

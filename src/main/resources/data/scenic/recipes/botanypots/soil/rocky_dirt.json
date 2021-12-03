@@ -1,0 +1,19 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "botanypots"
+    }
+  ],
+
+  "type": "botanypots:soil",
+
+  "input": {
+    "item": "scenic:rocky_dirt"
+  },
+  "display": {
+    "block": "scenic:rocky_dirt"
+  },
+  "categories": ["dirt", "rocky_dirt"],
+  "growthModifier": -0.65
+}

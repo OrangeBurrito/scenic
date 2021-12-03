@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "scenic:rock_pile"
+    },
+    {
+      "item": "scenic:rock_pile"
+    },
+    {
+      "item": "scenic:rock_pile"
+    },
+    {
+      "item": "scenic:rock_pile"
+    }
+  ],
+  "result": {
+    "item": "minecraft:cobblestone",
+    "count": 1
+  }
+}
