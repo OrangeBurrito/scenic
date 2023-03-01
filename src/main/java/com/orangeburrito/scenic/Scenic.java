@@ -1,6 +1,7 @@
 package com.orangeburrito.scenic;
 
 import com.mojang.logging.LogUtils;
+import com.orangeburrito.scenic.common.registry.ModBlocks;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -16,7 +17,9 @@ public class Scenic {
 
 	public Scenic() {
 		final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
 		modEventBus.addListener(this::setup);
+		ModBlocks.BLOCKS.register(modEventBus);
 
 		MinecraftForge.EVENT_BUS.register(this);
 	}
