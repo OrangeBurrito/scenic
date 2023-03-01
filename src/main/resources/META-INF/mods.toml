@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[40,)"
+license="MIT"
+[[mods]]
+modId="scenic"
+version="${file.jarVersion}"
+displayName="Scenic"
+logoFile="scenic.png"
+authors="OrangeBurrito, Vaelzan, Brunin"
+description='''
+Scenic Reforged
+
+A continuation of Vaelzan's original mod, this mod adds a collection of new blocks and world generation targeted at terraformers and landscapers. (We) hope you enjoy it!
+'''
+
+[[dependencies.scenic]]
+    modId="forge"
+    mandatory=true
+    versionRange="[40,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.scenic]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.18.2,1.19)"
+    ordering="NONE"
+    side="BOTH"
