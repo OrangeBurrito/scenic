@@ -3,16 +3,14 @@ package net.evilcult.scenic.world.gen;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import net.evilcult.scenic.Scenic;
+import net.evilcult.scenic.ScenicConfig;
 import net.evilcult.scenic.registry.ScenicBlocks;
 import net.evilcult.scenic.registry.ScenicFeatures;
 import net.evilcult.scenic.world.gen.feature.RockPileConfig;
 import net.minecraft.block.Blocks;
-import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
-import net.minecraft.world.Dimension;
-import net.minecraft.world.DimensionType;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.blockplacer.DoublePlantBlockPlacer;
@@ -23,15 +21,15 @@ import net.minecraft.world.gen.placement.NoPlacementConfig;
 import net.minecraft.world.gen.placement.Placement;
 import net.minecraft.world.gen.placement.TopSolidRangeConfig;
 import net.minecraftforge.common.BiomeDictionary;
-import net.minecraftforge.common.world.BiomeGenerationSettingsBuilder;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.Objects;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
 /**
  * Scenic Biome Features
@@ -88,54 +86,53 @@ public class ScenicBiomeFeatures {
         FISH_BONES_CONFIG = (new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(ScenicBlocks.FISH_BONES.get().getDefaultState()), new SimpleBlockPlacer())).tries(4).build();
 
         ROCKY_DIRT_CONFIG = new OreFeatureConfig(OreFeatureConfig.FillerBlockType.BASE_STONE_OVERWORLD, ScenicBlocks.ROCKY_DIRT.get().getDefaultState(), 20);
-        MOSSY_GRAVEL_CONFIG = new SphereReplaceConfig(ScenicBlocks.MOSSY_GRAVEL.get().getDefaultState(), FeatureSpread.func_242253_a(1, 2), 2, Lists.newArrayList(Blocks.GRASS_BLOCK.getDefaultState(), Blocks.DIRT.getDefaultState(), Blocks.GRAVEL.getDefaultState()));
-        MOSSY_ROCKY_DIRT_CONFIG = new SphereReplaceConfig(ScenicBlocks.MOSSY_ROCKY_DIRT.get().getDefaultState(), FeatureSpread.func_242253_a(2, 3), 1, Lists.newArrayList(Blocks.GRASS_BLOCK.getDefaultState(), Blocks.DIRT.getDefaultState()));
+        MOSSY_GRAVEL_CONFIG = new SphereReplaceConfig(ScenicBlocks.MOSSY_GRAVEL.get().getDefaultState(), FeatureSpread.create(1, 2), 2, Lists.newArrayList(Blocks.GRASS_BLOCK.getDefaultState(), Blocks.DIRT.getDefaultState(), Blocks.GRAVEL.getDefaultState()));
+        MOSSY_ROCKY_DIRT_CONFIG = new SphereReplaceConfig(ScenicBlocks.MOSSY_ROCKY_DIRT.get().getDefaultState(), FeatureSpread.create(2, 3), 1, Lists.newArrayList(Blocks.GRASS_BLOCK.getDefaultState(), Blocks.DIRT.getDefaultState()));
 
         ROCK_PILE_CONFIG = (new RockPileConfig(ScenicBlocks.ROCK_PILE.get().getDefaultState(), 8, 1, 85, 32)); // was 60
         SANDSTONE_ROCK_PILE_CONFIG = (new RockPileConfig(ScenicBlocks.SANDSTONE_ROCK_PILE.get().getDefaultState(), 8, 61, 75, 2));
 
-        STALAGMITE_CONFIG = (new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(ScenicBlocks.STALAGMITE.get().getDefaultState()), new SimpleBlockPlacer())).tries(32).xSpread(20).zSpread(20).whitelist(ImmutableSet.of(Blocks.STONE.getDefaultState().getBlock())).func_227317_b_().build();
-        STALACTITE_CONFIG = (new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(ScenicBlocks.STALACTITE.get().getDefaultState()), new SimpleBlockPlacer())).tries(32).xSpread(20).zSpread(20).func_227317_b_().build();  //.whitelist(ImmutableSet.of(STONE.getBlock())) // (doesn't work with this placer, the whitelist checks below not above)
+        STALAGMITE_CONFIG = (new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(ScenicBlocks.STALAGMITE.get().getDefaultState()), new SimpleBlockPlacer())).tries(32).xSpread(20).zSpread(20).whitelist(ImmutableSet.of(Blocks.STONE.getDefaultState().getBlock())).preventProjection().build();
+        STALACTITE_CONFIG = (new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(ScenicBlocks.STALACTITE.get().getDefaultState()), new SimpleBlockPlacer())).tries(32).xSpread(20).zSpread(20).preventProjection().build();  //.whitelist(ImmutableSet.of(STONE.getBlock())) // (doesn't work with this placer, the whitelist checks below not above)
 
-        TREASURE_POT_CONFIG = (new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(ScenicBlocks.TREASURE_POT.get().getDefaultState()), new SimpleBlockPlacer())).tries(32).whitelist(ImmutableSet.of(Blocks.COBBLESTONE.getDefaultState().getBlock(), Blocks.MOSSY_COBBLESTONE.getDefaultState().getBlock())).func_227317_b_().build();
+        TREASURE_POT_CONFIG = (new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(ScenicBlocks.TREASURE_POT.get().getDefaultState()), new SimpleBlockPlacer())).tries(32).whitelist(ImmutableSet.of(Blocks.COBBLESTONE.getDefaultState().getBlock(), Blocks.MOSSY_COBBLESTONE.getDefaultState().getBlock())).preventProjection().build();
 
-        GRASS_SHORT_FEATURE = Feature.RANDOM_PATCH.withConfiguration(GRASS_SHORT_CONFIG).withPlacement(Features.Placements.HEIGHTMAP_PLACEMENT).func_242731_b(5);
-        GRASS_TUFT_FEATURE = Feature.RANDOM_PATCH.withConfiguration(GRASS_TUFT_CONFIG).withPlacement(Features.Placements.HEIGHTMAP_PLACEMENT).func_242731_b(5);
+        GRASS_SHORT_FEATURE = Feature.RANDOM_PATCH.withConfiguration(GRASS_SHORT_CONFIG).withPlacement(Features.Placements.HEIGHTMAP_PLACEMENT).count(ScenicConfig.grassShortMaximum.get());
+        GRASS_TUFT_FEATURE = Feature.RANDOM_PATCH.withConfiguration(GRASS_TUFT_CONFIG).withPlacement(Features.Placements.HEIGHTMAP_PLACEMENT).count(ScenicConfig.grassTuftMaximum.get());
 
-        ROCKY_DIRT_FEATURE = Feature.ORE.withConfiguration(ROCKY_DIRT_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(0, 0, 128)).func_242731_b(8));
+        ROCKY_DIRT_FEATURE = Feature.ORE.withConfiguration(ROCKY_DIRT_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(0, 0, 128)).count(ScenicConfig.rockyDirtMaximum.get()));
 
-        STALAGMITE_FEATURE = Feature.RANDOM_PATCH.withConfiguration(STALAGMITE_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(0, 0, 60)).func_242731_b(10));
-        STALACTITE_FEATURE = Feature.RANDOM_PATCH.withConfiguration(STALACTITE_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(0, 0, 60)).func_242731_b(10));
+        STALAGMITE_FEATURE = Feature.RANDOM_PATCH.withConfiguration(STALAGMITE_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(0, 0, 60)).count(ScenicConfig.stalactiteMaximum.get()));
+        STALACTITE_FEATURE = Feature.RANDOM_PATCH.withConfiguration(STALACTITE_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(0, 0, 60)).count(ScenicConfig.stalagmiteMaximum.get()));
 
-        MOSSY_GRAVEL_FEATURE = Feature.DISK.withConfiguration(MOSSY_GRAVEL_CONFIG).withPlacement(Placement.TOP_SOLID_HEIGHTMAP.configure(NoPlacementConfig.INSTANCE).func_242731_b(1));
-        MOSSY_ROCKY_DIRT_FEATURE = Feature.DISK.withConfiguration(MOSSY_ROCKY_DIRT_CONFIG).withPlacement(Placement.TOP_SOLID_HEIGHTMAP.configure(NoPlacementConfig.INSTANCE).func_242731_b(1));
+        MOSSY_GRAVEL_FEATURE = Feature.DISK.withConfiguration(MOSSY_GRAVEL_CONFIG).withPlacement(Placement.TOP_SOLID_HEIGHTMAP.configure(NoPlacementConfig.INSTANCE).count(ScenicConfig.mossyGravelMaximum.get()));
+        MOSSY_ROCKY_DIRT_FEATURE = Feature.DISK.withConfiguration(MOSSY_ROCKY_DIRT_CONFIG).withPlacement(Placement.TOP_SOLID_HEIGHTMAP.configure(NoPlacementConfig.INSTANCE).count(ScenicConfig.MOSSY_ROCKY_DIRT_MAXIMUM.get()));
 
-        TREASURE_POT_FEATURE = Feature.RANDOM_PATCH.withConfiguration(TREASURE_POT_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(0, 0, 60))).func_242731_b(20);
-        FISH_BONES_FEATURE = Feature.RANDOM_PATCH.withConfiguration(FISH_BONES_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(0, 0, 3))).func_242731_b(1);
+        TREASURE_POT_FEATURE = Feature.RANDOM_PATCH.withConfiguration(TREASURE_POT_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(0, 0, 60))).count(ScenicConfig.treasurePotMaximum.get());
+        FISH_BONES_FEATURE = Feature.RANDOM_PATCH.withConfiguration(FISH_BONES_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(0, 0, 3))).count(ScenicConfig.fishBonesMaximum.get());
 
-        ROOTS_FEATURE = Feature.RANDOM_PATCH.withConfiguration(ROOTS_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(0, 0, 64))).func_242731_b(12); //
-        ROOTS_LONG_FEATURE = Feature.RANDOM_PATCH.withConfiguration(ROOTS_LONG_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(0, 0, 64))).func_242731_b(15);
-        ROOTS_GROUND_FEATURE = Feature.RANDOM_PATCH.withConfiguration(ROOTS_GROUND_CONFIG).withPlacement(Placement.TOP_SOLID_HEIGHTMAP.configure(NoPlacementConfig.INSTANCE).func_242731_b(2));
+        ROOTS_FEATURE = Feature.RANDOM_PATCH.withConfiguration(ROOTS_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(0, 0, 64))).count(ScenicConfig.rootsMaximum.get());
+        ROOTS_LONG_FEATURE = Feature.RANDOM_PATCH.withConfiguration(ROOTS_LONG_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(0, 0, 64))).count(ScenicConfig.rootsLongMaximum.get());
+        ROOTS_GROUND_FEATURE = Feature.RANDOM_PATCH.withConfiguration(ROOTS_GROUND_CONFIG).withPlacement(Placement.TOP_SOLID_HEIGHTMAP.configure(NoPlacementConfig.INSTANCE).count(ScenicConfig.rootsGroundMaximum.get()));
     }
 
     @SubscribeEvent
     public static void onBiomeLoad(BiomeLoadingEvent event) {
-        RegistryKey<Biome> biome = RegistryKey.getOrCreateKey(ForgeRegistries.Keys.BIOMES,
-                Objects.requireNonNull(event.getName(),
-                        "Who registered null name biome, naming criticism!"));
+		HashSet<String> biomeDictionary = BiomeDictionary.Type.getAll().stream().map(t -> t.toString()).collect(Collectors.toCollection(HashSet::new));
 
-        if (BiomeDictionary.hasType(biome, BiomeDictionary.Type.OVERWORLD)) {
+		// Check if the biomeDictionary contains a dimension from the dimension whitelist
+		if (!Collections.disjoint(biomeDictionary, ScenicConfig.dimensionWhitelist.get())) {
 
             event.getGeneration().withFeature(GenerationStage.Decoration.UNDERGROUND_ORES, ROCKY_DIRT_FEATURE);
 
             event.getGeneration().withFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, TREASURE_POT_FEATURE);
 
             if (event.getCategory() != Biome.Category.DESERT) {
-                event.getGeneration().withFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, ScenicFeatures.ROCK_PILE_FEATURE.get().withConfiguration(ROCK_PILE_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(40, 0, 60))).func_242731_b(10));
+                event.getGeneration().withFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, ScenicFeatures.ROCK_PILE_FEATURE.get().withConfiguration(ROCK_PILE_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(40, 0, 60))).count(10));
             }
 
             if (event.getCategory() == Biome.Category.DESERT) {
-                event.getGeneration().withFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, ScenicFeatures.SANDSTONE_ROCK_PILE_FEATURE.get().withConfiguration(SANDSTONE_ROCK_PILE_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(0, 0, 20))).func_242731_b(5));
+                event.getGeneration().withFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, ScenicFeatures.SANDSTONE_ROCK_PILE_FEATURE.get().withConfiguration(SANDSTONE_ROCK_PILE_CONFIG).withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(0, 0, 20))).count(5));
             }
 
             event.getGeneration().withFeature(GenerationStage.Decoration.UNDERGROUND_DECORATION, STALACTITE_FEATURE);

@@ -12,7 +12,9 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig.Type;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -68,6 +70,8 @@ public class Scenic {
         ScenicItems.ITEMS.register(MOD_EVENT_BUS);
         ScenicBlocks.BLOCKS.register(MOD_EVENT_BUS);
         ScenicFeatures.FEATURES.register(MOD_EVENT_BUS);
+		
+		ModLoadingContext.get().registerConfig(Type.COMMON, ScenicConfig.SPEC, "scenic-common.toml");
     }
 
     /**
